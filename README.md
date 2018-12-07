@@ -2,7 +2,7 @@
 
 **Dependencies**
 ```
-Python 3.0 or greater
+Python 3.0 or greater (with urllib3 and Biopython)
 ncbi-blast+ 2.3.0 or greater
 ```
 How to use:
@@ -23,7 +23,6 @@ This will produce a directory called "neisseria_capsule_DB," containing all of t
 Usage:
 
 ```python
-python3 characterize_neisseria_capsule.py -h
 
 characterize_neisseria_capsule.py [-h] -d INDIR -o OUT [-t THREADS]
 
