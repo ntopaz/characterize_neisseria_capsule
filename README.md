@@ -7,7 +7,7 @@ ncbi-blast+ 2.3.0 or greater
 ```
 How to use:
 
-1) Generate local blast database from the Neisseria capsule genes and insertion element collection:
+#### 1) Generate local blast database from the Neisseria capsule genes and insertion element collection:
 
 ```python
 python3 build_neisseria_dbs.py
@@ -18,7 +18,7 @@ It is recommended that this script be run in the same directory that "custom_all
 This will produce a directory called "neisseria_capsule_DB," containing all of the blast databases used in the main script.
 
 
-2) Use characterization script to obtain serogroup information for a collection of FASTA genome assembly files
+#### 2) Use characterization script to obtain serogroup information for a collection of FASTA genome assembly files
 
 Usage:
 
@@ -47,7 +47,7 @@ python3 characterize_neisseria_capsule.py -d my_fasta_file_directory -t 10 -o re
 
 This example will take a directory of fasta files (my_fasta_file_directory), and will process them using 10 CPU threads. The results will be found in the output folder "results."
 
-3) Interpreting Output:
+#### 3) Interpreting Output:
 
 Three output directories will be created:
 
