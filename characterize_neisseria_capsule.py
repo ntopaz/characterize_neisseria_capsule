@@ -32,6 +32,7 @@ ABS_PATH = os.path.dirname(SCRIPT_PATH)
 OUTPUT_DIR = ""
 http = urllib3.PoolManager()
 PUBMLST_DB = os.path.join(ABS_PATH,"neisseria_capsule_DB")
+fasta_extensions = [".fasta",".fna",".fas"]
 DNA = ["A","T","C","G"]
 gene_names ={"NEIS2743":"cnl","NEIS2157":"csaA","NEIS2158":"csaB","NEIS2159":"csaC","NEIS2160":"csaD","NEIS2161":"csb","NEIS0051":"csc","NEIS2165":"cseA","NEIS2166":"cseB",
 "NEIS2167":"cseC","NEIS2168":"cseD","NEIS2169":"cseE","NEIS2170":"cseF","NEIS2171":"cseG","NEIS2177":"cshC","NEIS2178":"cshD","NEIS2184":"cslA","NEIS2185":"cslB","NEIS2186":"cslC","NEIS2277":"cspA","NEIS0054":"cssA","NEIS0053":"cssB","NEIS0052":"cssC","NEIS0050":"cssE",
@@ -93,7 +94,7 @@ def create_gff(results_dict,seq_dict):
 		header_info = ""		
 		fasta_text = ""
 		out_path = os.path.join(OUTPUT_DIR,"gff")
-		with open(os.path.join(out_path,"{}.gff".format(in_file.replace(".fasta",""))),"w") as f:		
+		with open(os.path.join(out_path,"{}.gff".format(in_file)),"w") as f:		
 			for contig in results_dict[in_file]["contigs"]:
 				if contig == "species":
 					continue					
@@ -601,7 +602,7 @@ def blast_command(blast_db,query_file,threads_to_use,nucl):
 	return results
 
 
-def run_blast(working_dir,input_file,threads_to_use,blast_dir,seq_dict):
+def run_blast(working_dir,in_file,file_name,threads_to_use,blast_dir,seq_dict):
 	processes = int(threads_to_use)
 	print("Blasting against Neisseria capsule database with",threads_to_use,"workers")
 	## Setup pool for multiprocessing ###
@@ -615,7 +616,7 @@ def run_blast(working_dir,input_file,threads_to_use,blast_dir,seq_dict):
 	for folder in os.listdir(blast_dir):
 		folders.append(folder)
 	### setup query file path and check if blast DB is protein or nucleotide ###
-	query_file = os.path.join(working_dir,input_file)
+	query_file = os.path.join(working_dir,file_name)
 	blast_results_list = []		
 	nucl_dict = {}
 	for folder in folders:
@@ -628,10 +629,10 @@ def run_blast(working_dir,input_file,threads_to_use,blast_dir,seq_dict):
 	blast_time = [pool.apply_async(blast_command,args=(os.path.join(blast_dir,folder,folder),query_file,"1",nucl_dict[folder])) for folder in folders]
 	output = [result.get() for result in blast_time]
 	blast_final_results = [re.split(b"\n",item.rstrip()) for item in output]
-	print("Completed BLAST for",input_file)	
+	print("Completed BLAST for",in_file)	
 	pool.terminate()
-	input_file = input_file.replace(".fasta","").replace(".fna","")	
-	final_dict = analyze_blast(blast_final_results,input_file,seq_dict)
+	#input_file = input_file.replace(".fasta","").replace(".fna","")	
+	final_dict = analyze_blast(blast_final_results,in_file,seq_dict)
 	return final_dict	
 
 
@@ -906,12 +907,18 @@ def main():
 				existing_json = existing_json.split("_raw")[0]
 				existing_results.append(existing_json)
 	for in_file in os.listdir(working_dir):
-		if ".fasta" in in_file or ".fna" in in_file:
+		include = False
+		for ext in fasta_extensions:
+			if in_file.endswith(ext):
+				include = True
+				file_ext = ext
+				break
+		if include:
 			file_name = in_file
-			in_file = in_file.replace(".fasta","").replace(".fna","")
+			in_file = in_file.replace(file_ext,"")
 			seq_dict[in_file] = {"species":"","contigs":{},"file_name":file_name}			
 			blast_species = "neisseria"			
-			blast_dir = os.path.join(ABS_PATH,main_blast_dir,blast_species)			
+			blast_dir = os.path.join(ABS_PATH,main_blast_dir,blast_species)		
 			with open(os.path.join(working_dir,file_name),"rU") as f:							
 				for seq_record in SeqIO.parse(f,"fasta"):
 					id = seq_record.id					
@@ -925,9 +932,9 @@ def main():
 					seq_dict[in_file]["species"] = blast_species
 					seq_dict[in_file]["contigs"][id]["alleles"] = {}
 			if in_file not in existing_results:
-				final_dict = run_blast(working_dir,file_name,args["threads"],blast_dir,seq_dict)
+				final_dict = run_blast(working_dir,in_file,file_name,args["threads"],blast_dir,seq_dict)
 				#with open(os.path.join(OUTPUT_DIR,"json","{}_raw_results.json".format(in_file)),"w") as f:
-				with open(os.path.join(OUTPUT_DIR,"json","{}_raw_results.json".format(in_file.replace(".fasta","").replace(".fna",""))),"w") as f:
+				with open(os.path.join(OUTPUT_DIR,"json","{}_raw_results.json".format(in_file)),"w") as f:
 					json.dump(final_dict,f)					
 			else:
 				in_file_path = os.path.join(OUTPUT_DIR,"json",in_file+"_raw_results.json")
@@ -943,7 +950,7 @@ def main():
 	print("#######################################################################################################")
 	print("Step 3. Running analyses")		
 	for in_file in final_results_dict:
-		with open(os.path.join(OUTPUT_DIR,"json","{}_final_results.json".format(in_file.replace(".fasta","").replace(".fna",""))),"w") as f:		
+		with open(os.path.join(OUTPUT_DIR,"json","{}_final_results.json".format(in_file)),"w") as f:		
 			temp_dict = {}
 			temp_dict[in_file] = final_results_dict[in_file]			
 			json.dump(temp_dict,f)			

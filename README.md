@@ -18,7 +18,8 @@ It is recommended that this script be run in the same directory that "custom_all
 This will produce a directory called "neisseria_capsule_DB," containing all of the blast databases used in the main script.
 
 
-#### 2) Use characterization script to obtain serogroup information for a collection of FASTA genome assembly files
+#### 2) Use characterization script to obtain serogroup information for a collection of FASTA genome assembly files:
+*Note: Fasta files must have one of the following extensions: .fasta, .fna. fas
 
 Usage:
 
