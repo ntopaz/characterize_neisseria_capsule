@@ -3,7 +3,6 @@
 import sys
 from Bio import SeqIO
 from Bio.Seq import Seq
-from Bio.Alphabet import IUPAC
 import os
 import re
 import json
@@ -552,7 +551,7 @@ def analyze_results(results_dict,threads):
 										DNA_flag = False
 										break
 								if DNA_flag:							
-									seq_obj = Seq(sequence, IUPAC.unambiguous_dna)
+									seq_obj = Seq(sequence)
 								hit["flags"] = []					
 								hit["new"] = True
 								hit["allele_id"] = "new_allele_similar_to_{}_identity({})%_cov({})%".format(allele_id,identity,round(cov*100,2))
@@ -571,7 +570,7 @@ def analyze_results(results_dict,threads):
 											DNA_flag = False
 											break
 								if DNA_flag:						
-									seq_obj = Seq(sequence, IUPAC.unambiguous_dna)
+									seq_obj = Seq(sequence)
 									
 							if not edge_match and DNA_flag and sequence != "N/A":
 								protein_sequence = seq_obj.translate(table=11)
