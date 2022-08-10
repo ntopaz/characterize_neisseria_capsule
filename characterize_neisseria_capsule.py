@@ -1,23 +1,17 @@
 #!/usr/bin/env python3.4
 ### Import Modules ###
-import sys
 from Bio import SeqIO
 from Bio.Seq import Seq
 import os
 import re
 import json
 from collections import OrderedDict
-import operator
-import csv
-import pprint as pp
-import string
 import locale
 import time
 import tempfile
 import argparse
 import urllib3
-import math
-from multiprocessing import Pool, Process, Queue
+from multiprocessing import Pool
 from subprocess import *
 #call[("module", "load", "Python/3.4")]
 #call[("module", "load", "ncbi-blast+/2.2.29")]
@@ -256,9 +250,9 @@ def analyze_blast(results,input_file,seq_dict):
 								edge_match = True
 							else:
 								edge_match = False														
-							if a_num["strand"] is "+":
+							if a_num["strand"] == "+":
 								qseq = seq_dict[input_file]["contigs"][contig]["seq"][start-1:end]
-							if a_num["strand"] is "-":												
+							if a_num["strand"] == "-":
 								qseq = seq_dict[input_file]["contigs"][contig]["seq"][start-1:end].reverse_complement()						
 							if (current_identity < ident_cutoff or current_cov < cov_cutoff) and not edge_match:
 								if allele in allele_exceptions:
